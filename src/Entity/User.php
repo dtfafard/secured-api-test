@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\See;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
 
@@ -10,7 +12,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User implements UserInterface
+class User extends SeedboxEntityAbstract implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -45,16 +47,26 @@ class User implements UserInterface
      */
     private $username;
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * @param string $email
+     * @return User
+     */
     public function setEmail(string $email): self
     {
         $this->email = $email;
@@ -94,6 +106,10 @@ class User implements UserInterface
         return array_unique($roles);
     }
 
+    /**
+     * @param array $roles
+     * @return User
+     */
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
@@ -109,6 +125,10 @@ class User implements UserInterface
         return (string) $this->password;
     }
 
+    /**
+     * @param string $password
+     * @return User
+     */
     public function setPassword(string $password): self
     {
         $this->password = $password;
@@ -133,15 +153,67 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
+    /**
+     * @return string|null
+     */
     public function getApiToken(): ?string
     {
         return $this->apiToken;
     }
 
+    /**
+     * @param string $apiToken
+     * @return User
+     */
     public function setApiToken(string $apiToken): self
     {
         $this->apiToken = $apiToken;
 
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function initData(array $data): SeedboxEntityInterface
+    {
+        /**
+         * @var UserPasswordEncoderInterface $encoder
+         */
+        $encoder = $data['encoder'];
+
+        $this->setUsername($data['username'])
+            ->setEmail($data['email'])
+            ->setPassword($encoder->encodePassword($data['password']));
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateInitData(array $data): bool
+    {
+        if (!isset($data['username'])) {
+            throw new \InvalidArgumentException('Missing Username');
+        }
+
+        if (!isset($data['email'])) {
+            throw new \InvalidArgumentException('Missing Email');
+        }
+
+        if (!isset($data['password'])) {
+            throw new \InvalidArgumentException('Missing Password');
+        }
+
+        if (!isset($data['password-encoder'])) {
+            throw new \InvalidArgumentException('Missing Password Encoder');
+        }
+
+        if (!$data['password-encoder'] instanceof UserPasswordEncoderInterface) {
+            throw new \InvalidArgumentException('Invalid Password Encoder');
+        }
+
+        return true;
     }
 }

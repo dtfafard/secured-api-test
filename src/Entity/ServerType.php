@@ -11,8 +11,10 @@ use ApiPlatform\Core\Annotation\ApiResource;
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\ServerTypeRepository")
  */
-class ServerType
+class ServerType extends SeedboxEntityAbstract
 {
+    use NameStatusEntityTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -35,21 +37,34 @@ class ServerType
      */
     private $servers;
 
+    /**
+     * ServerType constructor.
+     */
     public function __construct()
     {
         $this->servers = new ArrayCollection();
     }
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * @param string $name
+     * @return ServerType
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -57,11 +72,21 @@ class ServerType
         return $this;
     }
 
+    /**
+     * @return int|null
+     */
     public function getStatus(): ?int
     {
         return $this->status;
     }
 
+    /**
+     * FROM DAVID :     To ease the work, I've not validated the input not setup a set of available statuses for
+     *                  the ServerType entity
+     *
+     * @param int $status
+     * @return ServerType
+     */
     public function setStatus(int $status): self
     {
         $this->status = $status;
@@ -77,6 +102,10 @@ class ServerType
         return $this->servers;
     }
 
+    /**
+     * @param Server $server
+     * @return ServerType
+     */
     public function addServer(Server $server): self
     {
         if (!$this->servers->contains($server)) {
@@ -87,6 +116,10 @@ class ServerType
         return $this;
     }
 
+    /**
+     * @param Server $server
+     * @return ServerType
+     */
     public function removeServer(Server $server): self
     {
         if ($this->servers->contains($server)) {

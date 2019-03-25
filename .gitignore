@@ -20,3 +20,9 @@
 ###> PHP Storm ###
 /.idea
 ###< PHP Storm ###
+
+
+###> symfony/phpunit-bridge ###
+.phpunit
+/phpunit.xml
+###< symfony/phpunit-bridge ###
