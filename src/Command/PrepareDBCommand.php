@@ -65,5 +65,6 @@ class PrepareDBCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
     }
 }
