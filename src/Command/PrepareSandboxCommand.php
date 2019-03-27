@@ -12,10 +12,12 @@ use App\Entity\EntityFactory;
 use App\Entity\Product;
 use App\Entity\ServerType;
 use App\Entity\User;
+use App\Entity\Server;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -63,6 +65,16 @@ class PrepareSandboxCommand extends Command
     protected $users = [];
 
     /**
+     * @var InputInterface
+     */
+    protected $input = null;
+
+    /**
+     * @var OutputInterface
+     */
+    protected $output = null;
+
+    /**
      * CreateUserCommand constructor.
      * @param EntityManagerInterface $em
      */
@@ -96,6 +108,9 @@ class PrepareSandboxCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->input = $input;
+        $this->output = $output;
+
         $this->validatePHP();
         $this->setupDBData();
     }
@@ -105,7 +120,12 @@ class PrepareSandboxCommand extends Command
      */
     protected function validatePHP()
     {
-        echo phpversion();
+        $version = phpversion();
+
+        if (!preg_match('/^7\./', $version)) {
+            die(var_dump($version));
+            throw new \RuntimeException('PHP 7.x is required');
+        }
     }
 
     /**
@@ -176,7 +196,7 @@ class PrepareSandboxCommand extends Command
 
                         $servers[] = [
                             'name' => $serverName,
-                            'ip' => long2ip(rand(0, "4294967295")),
+                            'ip' => long2ip(rand(0, 42949672)),
                             'product' => $product,
                             'type' => $type
                         ];
@@ -199,19 +219,19 @@ class PrepareSandboxCommand extends Command
             [
                 'username' => 'example1@gmail.com',
                 'email' => 'example1@gmail.com',
-                'password' => 'test' . rand(1, 10000),
+                'password' => 'test123',
                 'password-encoder' => $this->passwordEncoder
             ],
             [
                 'username' => 'example2@gmail.com',
                 'email' => 'example2@gmail.com',
-                'password' => 'test' . rand(1, 10000),
+                'password' => 'test123',
                 'password-encoder' => $this->passwordEncoder
             ],
             [
                 'username' => 'example3@gmail.com',
                 'email' => 'example3@gmail.com',
-                'password' => 'test' . rand(1, 10000),
+                'password' => 'test123',
                 'password-encoder' => $this->passwordEncoder
             ],
         ];
@@ -236,7 +256,12 @@ class PrepareSandboxCommand extends Command
             $container[] = $entity;
         }
 
-        $this->em->flush();
+        try {
+            $this->em->flush();
+        } catch (\Exception $e) {
+            $this->output->writeln('<comment>The Sandbox is already generated</comment>');
+            exit(1);
+        }
 
         return $container;
     }

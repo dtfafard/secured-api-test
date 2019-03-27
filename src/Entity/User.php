@@ -7,9 +7,13 @@ use phpDocumentor\Reflection\DocBlock\Tags\See;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User extends SeedboxEntityAbstract implements UserInterface
@@ -23,17 +27,20 @@ class User extends SeedboxEntityAbstract implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"read", "write"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"write"})
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups({"write"})
      */
     private $password;
 
@@ -44,6 +51,7 @@ class User extends SeedboxEntityAbstract implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"read", "write"})
      */
     private $username;
 
@@ -180,11 +188,11 @@ class User extends SeedboxEntityAbstract implements UserInterface
         /**
          * @var UserPasswordEncoderInterface $encoder
          */
-        $encoder = $data['encoder'];
+        $encoder = $data['password-encoder'];
 
         $this->setUsername($data['username'])
             ->setEmail($data['email'])
-            ->setPassword($encoder->encodePassword($data['password']));
+            ->setPassword($encoder->encodePassword($this, $data['password']));
 
         return $this;
     }

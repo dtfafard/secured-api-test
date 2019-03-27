@@ -3,10 +3,15 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"read", "server"}, "enable_max_depth"="true"},
+ *     denormalizationContext={"groups"={"write"}}
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\ServerRepository")
  */
 class Server extends SeedboxEntityAbstract
@@ -19,24 +24,30 @@ class Server extends SeedboxEntityAbstract
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, unique=true)
+     * @Groups({"read", "write", "server-type", "product", "server"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Groups({"read", "write", "server"})
      */
     private $ip;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="servers")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"read", "write", "server"})
+     * @MaxDepth(1)
      */
     private $product;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ServerType", inversedBy="servers")
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"read", "write", "server"})
+     * @MaxDepth(1)
      */
     private $Type;
 
