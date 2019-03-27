@@ -35,6 +35,7 @@ bin/console seedbox:setup-sandbox
 ### Generate the private & public pem
 Follow the steps here : https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#generate-the-ssh-keys-
 NOTE that you have to use openssl otherwise. JWT from Lexik depends on this library.
+NOTE make sure you use the passphrase "mytest" as this is the one noted in the : lexik_jwt_authentication.yaml file. If you wish to use your own passphrase, please make sure to also update it in the config file.
 
 ### Clear the cache 
 ```bash
