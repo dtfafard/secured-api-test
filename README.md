@@ -32,7 +32,18 @@ bin/console doctrine:migrations:migrate
 bin/console seedbox:setup-sandbox
 ```
 
+### Generate the private & public pem
+Follow the steps here : https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#generate-the-ssh-keys-
+NOTE that you have to use openssl otherwise. JWT from Lexik depends on this library.
+
+### Clear the cache 
+```bash
+bin/console cache:clear
+```
+
 ### Run the server
+Choose a PORT to run the server on.
+
 ```bash
 bin/console server:run 127.0.0.1:PORT
 ```
@@ -42,10 +53,37 @@ In your browser, go to :
 ```
 http://127.0.0.1:PORT/api
 ```
+NOTE the port to be updated according to the port you chose in the previous step.
 
 ## Usage
+### Get the Token
+Call the following CURL command. NOTE : make sure to update the PORT value according to the port you chose.
+```
+curl -X POST -H "Content-Type: application/json" http://127.0.0.1:PORT/api/login_check -d '{"username":"example1@gmail.com","password":"test123"}'
+```
 
+You should get a response like this : 
+```
+{"token":"TOKENVALUE_FROM_CURL_REQUEST"}
+```
 
+### Set up the Token
+In your browser, go to : 
+```
+http://127.0.0.1:PORT/api
+```
+
+Click on "Authorize"
+
+Enter in the field : 
+```
+Bearer TOKENVALUE_FROM_CURL_REQUEST
+```
+
+Click on "Authorize" and then on "Close"
+
+### Make calls in the web interface
+Click on the calls and click on "Try it out"
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
