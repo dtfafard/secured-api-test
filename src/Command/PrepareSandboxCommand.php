@@ -113,6 +113,8 @@ class PrepareSandboxCommand extends Command
 
         $this->validatePHP();
         $this->setupDBData();
+
+        $output->writeln('<info>Sandbox created successfully</info>');
     }
 
     /**
